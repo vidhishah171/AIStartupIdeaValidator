@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  color-scheme: light;
+  --background: 0 0% 98%;
+  --foreground: 222 47% 11%;
+  --muted: 210 20% 96%;
+  --muted-foreground: 215 16% 47%;
+  --border: 214 16% 91%;
+  --card: 0 0% 100%;
+  --primary: 243 75% 59%;
+  --primary-foreground: 0 0% 100%;
+  --accent: 234 89% 95%;
+  --accent-foreground: 234 16% 18%;
+}
+
+.dark {
+  color-scheme: dark;
+  --background: 230 30% 6%;
+  --foreground: 210 40% 96%;
+  --muted: 230 22% 10%;
+  --muted-foreground: 220 18% 72%;
+  --border: 230 18% 18%;
+  --card: 230 24% 9%;
+  --primary: 225 85% 62%;
+  --primary-foreground: 230 30% 8%;
+  --accent: 225 70% 65%;
+  --accent-foreground: 230 30% 8%;
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-border: hsl(var(--border));
+  --color-card: hsl(var(--card));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+}
+
+:root {
+  font-size: 14px;
+}
+
+html {
+  font-size: 14px !important;
+}
+
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-sans) !important;
+  font-size: 1rem !important;
+  line-height: 1.7;
+  letter-spacing: 0;
+  min-height: 100vh;
+}
+
+button,
+a,
+[role="button"] {
+  cursor: pointer;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at top left, hsl(var(--accent)) 0%, transparent 60%),
+    radial-gradient(
+      circle at bottom right,
+      hsl(var(--primary)) 0%,
+      transparent 60%
+    );
+  opacity: 0.18;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.dark .bg-card {
+  background-color: hsl(var(--card) / 0.7) !important;
+}
+
+.dark .bg-muted {
+  background-color: hsl(var(--muted) / 0.6) !important;
+}
+
+.dark body::before {
+  opacity: 0.22;
+}
+
+.glass-card {
+  background-color: hsl(var(--card) / 0.6);
+  border: 1px solid hsl(var(--border) / 0.6);
+  backdrop-filter: blur(18px);
+}
+
+.glass-muted {
+  background-color: hsl(var(--card) / 0.45);
+  border: 1px solid hsl(var(--border) / 0.5);
+  backdrop-filter: blur(14px);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, hsl(var(--border)) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px);
+  background-size: 120px 120px;
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: -2;
+}
+
+.calendar-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.calendar-popover {
+  backdrop-filter: blur(18px);
+  background-color: hsl(var(--background)) !important;
+}
+
+.calendar-day {
+  border: 1px solid transparent;
+}
+
+.calendar-day:hover {
+  border-color: hsl(var(--border));
+}
