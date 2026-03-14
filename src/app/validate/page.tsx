@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ValidationSkeleton } from "@/components/validation-skeleton";
 import { ReportCards } from "@/components/report-cards";
@@ -11,7 +11,7 @@ import { useSearchParams } from "next/navigation";
 const MIN_CHARS = 50;
 const MAX_CHARS = 1000;
 
-export default function ValidatePage() {
+function ValidatePageInner() {
   const [ideaText, setIdeaText] = useState("");
   const [prefilled, setPrefilled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -131,5 +131,13 @@ export default function ValidatePage() {
         {report && !isLoading && <ReportCards report={report} />}
       </div>
     </div>
+  );
+}
+
+export default function ValidatePage() {
+  return (
+    <Suspense fallback={null}>
+      <ValidatePageInner />
+    </Suspense>
   );
 }
