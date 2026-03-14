@@ -24,16 +24,20 @@ export async function DELETE(_request: Request, context: Context) {
     return NextResponse.json({ error: "Not found." }, { status: 404 });
   }
 
-  await supabase.from("shared_reports").delete().eq("validation_id", validation.id);
+  await supabase
+    .from("shared_reports")
+    .delete()
+    .eq("validation_id", validation.id);
   const { error } = await supabase
     .from("validations")
     .delete()
     .eq("id", validation.id);
 
   if (error) {
+    console.error("Delete validation error:", error);
     return NextResponse.json(
-      { error: "Unable to delete validation." },
-      { status: 500 }
+      { error: error.message || "Unable to delete validation." },
+      { status: 500 },
     );
   }
 

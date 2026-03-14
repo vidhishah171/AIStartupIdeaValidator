@@ -313,7 +313,7 @@ export function DashboardClient({ validations }: { validations: ValidationRow[] 
               No ideas yet. Validate your first startup concept.
             </div>
           )}
-          {visibleItems.map((item) => {
+          {visibleItems.slice(0, 9).map((item) => {
             const score = item.report?.marketDemandScore ?? 0;
             const ideaHeadline = getIdeaHeadline(item.idea_text);
             const shortHeadline =
@@ -364,8 +364,13 @@ export function DashboardClient({ validations }: { validations: ValidationRow[] 
                   <button
                     type="button"
                     onClick={() => handleDelete(item.id)}
-                    className="rounded-full border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-rose-600 dark:text-rose-200"
-                  >Delete</button>
+                    className="rounded-full border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-rose-600 dark:text-rose-200 flex items-center gap-1"
+                    title="Delete"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                      <path fillRule="evenodd" d="M7.5 3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V4h3.25a.75.75 0 0 1 0 1.5h-.305l-.548 9.316A2.75 2.75 0 0 1 12.153 17H7.847a2.75 2.75 0 0 1-2.744-2.184L4.555 5.5h-.305a.75.75 0 0 1 0-1.5H7.5V3Zm1 1v-.25a.25.25 0 0 1 .25-.25h3a.25.25 0 0 1 .25.25V4h-3.5Zm-2.01 1.5l.54 9.18a1.25 1.25 0 0 0 1.247 1.07h4.306a1.25 1.25 0 0 0 1.247-1.07l.54-9.18H6.49Z" clipRule="evenodd" />
+                    </svg>
+                  </button>
                 </div>
               </div>
             );
@@ -412,24 +417,24 @@ export function DashboardClient({ validations }: { validations: ValidationRow[] 
           <ResponsiveContainer width="100%" height={400}>
             <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.2)" />
-                <XAxis
-                  type="number"
-                  dataKey="x"
-                  name="Competition"
-                  domain={[0, 100]}
-                  label={{ value: "Competition", position: "bottom", offset: 0 }}
-                  tickCount={11}
-                  interval={0}
-                />
-                <YAxis
-                  type="number"
-                  dataKey="y"
-                  name="Demand"
-                  domain={[0, 100]}
-                  label={{ value: "Demand", angle: -90, position: "insideLeft" }}
-                  tickCount={11}
-                  interval={0}
-                />
+              <XAxis
+                type="number"
+                dataKey="x"
+                name="Competition"
+                domain={[0, 100]}
+                label={{ value: "Competition", position: "bottom", offset: 0 }}
+                tickCount={11}
+                interval={0}
+              />
+              <YAxis
+                type="number"
+                dataKey="y"
+                name="Demand"
+                domain={[0, 100]}
+                label={{ value: "Demand", angle: -90, position: "insideLeft" }}
+                tickCount={11}
+                interval={0}
+              />
               <ZAxis type="number" dataKey="z" range={[100, 800]} name="Market Size" />
               <Tooltip
                 content={({ payload }) => {
@@ -445,22 +450,22 @@ export function DashboardClient({ validations }: { validations: ValidationRow[] 
                   );
                 }}
               />
-                <defs>
-                  <linearGradient id="scatterGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#6366f1" stopOpacity={0.6} />
-                    <stop offset="100%" stopColor="#a855f7" stopOpacity={0.9} />
-                  </linearGradient>
-                </defs>
-                <Scatter data={marketMapData} fill="url(#scatterGradient)">
-                  {marketMapData.map((entry, index) => (
-                    <Cell
-                      key={entry.title + index}
-                      fill={
-                        entry.score >= 75 ? "#10b981" : entry.score >= 55 ? "#f59e0b" : "#f43f5e"
-                      }
-                    />
-                  ))}
-                </Scatter>
+              <defs>
+                <linearGradient id="scatterGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#6366f1" stopOpacity={0.6} />
+                  <stop offset="100%" stopColor="#a855f7" stopOpacity={0.9} />
+                </linearGradient>
+              </defs>
+              <Scatter data={marketMapData} fill="url(#scatterGradient)">
+                {marketMapData.map((entry, index) => (
+                  <Cell
+                    key={entry.title + index}
+                    fill={
+                      entry.score >= 75 ? "#10b981" : entry.score >= 55 ? "#f59e0b" : "#f43f5e"
+                    }
+                  />
+                ))}
+              </Scatter>
             </ScatterChart>
           </ResponsiveContainer>
         </section>
@@ -536,20 +541,20 @@ export function DashboardClient({ validations }: { validations: ValidationRow[] 
       <section className="rounded-3xl border border-slate-200/60 bg-white/80 p-6 shadow-[0_20px_60px_-40px_rgba(15,23,42,0.4)] dark:border-white/10 dark:bg-slate-900/70">
         <h3 className="mb-4 text-lg font-semibold">Recent Activity</h3>
         <div className="grid gap-3">
-            {visibleItems.slice(0, 5).map((item) => {
-              const activityHeadline = getIdeaHeadline(item.idea_text);
-              const shortHeadline =
-                activityHeadline.length > 50
-                  ? `${activityHeadline.slice(0, 50)}...`
-                  : activityHeadline;
-              return (
-                <div key={item.id} className="flex items-center gap-3 rounded-2xl border border-slate-200/60 bg-slate-50/80 px-4 py-3 text-sm dark:border-white/10 dark:bg-slate-900/60">
-                  <div className="h-2 w-2 rounded-full bg-sky-500" />
-                  <span className="font-medium">{shortHeadline}</span>
-                  <span className="ml-auto text-xs text-slate-500 dark:text-slate-400">{formatDate(item.created_at)}</span>
-                </div>
-              );
-            })}
+          {visibleItems.slice(0, 5).map((item) => {
+            const activityHeadline = getIdeaHeadline(item.idea_text);
+            const shortHeadline =
+              activityHeadline.length > 50
+                ? `${activityHeadline.slice(0, 50)}...`
+                : activityHeadline;
+            return (
+              <div key={item.id} className="flex items-center gap-3 rounded-2xl border border-slate-200/60 bg-slate-50/80 px-4 py-3 text-sm dark:border-white/10 dark:bg-slate-900/60">
+                <div className="h-2 w-2 rounded-full bg-sky-500" />
+                <span className="font-medium">{shortHeadline}</span>
+                <span className="ml-auto text-xs text-slate-500 dark:text-slate-400">{formatDate(item.created_at)}</span>
+              </div>
+            );
+          })}
           {visibleItems.length === 0 && (
             <p className="text-sm text-slate-500 dark:text-slate-400">No recent activity.</p>
           )}
