@@ -25,7 +25,7 @@ const features = [
 
 export function LandingFeatures() {
   return (
-    <section className="mx-auto mt-20 w-full max-w-none px-6">
+    <section className="mx-auto mt-20 w-full max-w-8xl px-6 lg:px-40">
       <div className="flex flex-col gap-3">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
           Features

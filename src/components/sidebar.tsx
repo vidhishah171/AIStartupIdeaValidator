@@ -23,14 +23,15 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: ChartNoAxesCombined },
-    { href: "/validate", label: "Validate Idea", icon: Bolt },
     { href: "/generate-ideas", label: "Idea Generator", icon: Lightbulb },
-    { href: "/competitors", label: "Competitors", icon: Search },
+    { href: "/validate", label: "Idea Validator", icon: Bolt },
     { href: "/reports", label: "Reports", icon: Layers },
-    { href: "/reports/market-insights", label: "Market Insights", icon: Signal },
-    { href: "/compare", label: "Comparison", icon: Scale },
     { href: "/mvp-planner", label: "MVP Planner", icon: ClipboardList },
+    { href: "/compare", label: "Comparison", icon: Scale },
+    { href: "/competitors", label: "Competitors", icon: Search },
+    { href: "/reports/market-insights", label: "Market Insights", icon: Signal },
     { href: "/pricing", label: "Pricing", icon: DollarSign },
+    { href: "/profile", label: "User Profile", icon: Sparkles },
 ];
 
 type SidebarProps = {

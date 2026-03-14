@@ -11,7 +11,7 @@ export default function HomePage() {
       <LandingFeatures />
       <PricingPlans />
 
-      <section className="mx-auto mt-20 w-full max-w-none px-6">
+      <section className="mx-auto mt-20 w-full max-w-6xl px-6 lg:px-0">
         <div className="glass-card rounded-3xl p-10 text-center">
           <h2 className="text-4xl font-semibold">
             Ready to stress-test your next idea?

@@ -6,7 +6,7 @@ import { ArrowRight, Sparkles } from "lucide-react";
 
 export function LandingHero() {
   return (
-    <section className="mx-auto w-full max-w-none px-6 pt-16 md:pt-24">
+    <section className="mx-auto w-full max-w-8xl px-6 pt-16 md:pt-24 lg:px-40">
       <div className="grid gap-10 md:grid-cols-[1.15fr_0.85fr] md:items-center">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
