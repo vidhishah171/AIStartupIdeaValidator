@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { z } from "zod";
-import OpenAI from "openai";
+// import OpenAI from "openai";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { VALIDATION_SYSTEM_PROMPT } from "@/lib/prompts";
 import type { ValidationReport } from "@/lib/types";
@@ -95,28 +95,52 @@ export async function POST(request: Request) {
         );
       }
 
-      if (!process.env.OPENAI_API_KEY) {
+      if (!process.env.GEMINI_API_KEY) {
         return NextResponse.json(
-          { error: "OpenAI API key not configured." },
+          { error: "Gemini API key not configured." },
           { status: 500 },
         );
       }
 
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: VALIDATION_SYSTEM_PROMPT },
-          { role: "user", content: payload.data.ideaText },
+      // Gemini API call
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+      const geminiBody = {
+        contents: [
+          {
+            parts: [
+              { text: `${VALIDATION_SYSTEM_PROMPT}\n${payload.data.ideaText}` },
+            ],
+          },
         ],
-        response_format: { type: "json_object" },
-        temperature: 0.3,
-      });
+      };
 
-      const message = completion.choices[0]?.message?.content ?? "{}";
-      console.log("OpenAI raw response for idea:", payload.data.ideaText);
+      const geminiRes = await fetch(geminiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(geminiBody),
+      });
+      if (!geminiRes.ok) {
+        const err = await geminiRes.text();
+        return NextResponse.json(
+          { error: `Gemini API error: ${err}` },
+          { status: 502 },
+        );
+      }
+      const geminiData = await geminiRes.json();
+      let message =
+        geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? "{}";
+      // Remove markdown code block if present
+      if (message.startsWith("```json")) {
+        message = message
+          .replace(/^```json/, "")
+          .replace(/```$/, "")
+          .trim();
+      } else if (message.startsWith("```")) {
+        message = message.replace(/^```/, "").replace(/```$/, "").trim();
+      }
+      console.log("Gemini raw response for idea:", payload.data.ideaText);
       console.log(message);
+
       const parsed = reportSchema.safeParse(JSON.parse(message));
 
       if (!parsed.success) {
@@ -208,28 +232,50 @@ export async function POST(request: Request) {
       }
     }
 
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
-        { error: "OpenAI API key not configured." },
+        { error: "Gemini API key not configured." },
         { status: 500 },
       );
     }
 
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-    
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: VALIDATION_SYSTEM_PROMPT },
-        { role: "user", content: payload.data.ideaText },
+    // Gemini API call
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+    const geminiBody = {
+      contents: [
+        {
+          parts: [
+            { text: `${VALIDATION_SYSTEM_PROMPT}\n${payload.data.ideaText}` },
+          ],
+        },
       ],
-      response_format: { type: "json_object" },
-      temperature: 0.3,
-    });
+    };
 
-    const message = completion.choices[0]?.message?.content ?? "{}";
-    console.log("OpenAI raw response for idea:", payload.data.ideaText);
+    const geminiRes = await fetch(geminiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(geminiBody),
+    });
+    if (!geminiRes.ok) {
+      const err = await geminiRes.text();
+      return NextResponse.json(
+        { error: `Gemini API error: ${err}` },
+        { status: 502 },
+      );
+    }
+    const geminiData = await geminiRes.json();
+    let message =
+      geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? "{}";
+    // Remove markdown code block if present
+    if (message.startsWith("```json")) {
+      message = message
+        .replace(/^```json/, "")
+        .replace(/```$/, "")
+        .trim();
+    } else if (message.startsWith("```")) {
+      message = message.replace(/^```/, "").replace(/```$/, "").trim();
+    }
+    console.log("Gemini raw response for idea:", payload.data.ideaText);
     console.log(message);
     const parsed = reportSchema.safeParse(JSON.parse(message));
 
@@ -279,12 +325,10 @@ export async function POST(request: Request) {
       validationId: validationRow.id,
     });
   } catch (error) {
+    console.error("Validate API error:", error);
     return NextResponse.json(
-      { error: "Unexpected server error." },
+      { error: error instanceof Error ? error.message : String(error) },
       { status: 500 },
     );
   }
 }
-
-
-

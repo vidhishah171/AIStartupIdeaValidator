@@ -71,7 +71,7 @@ export default async function ProfilePage() {
     .eq("user_id", user.id)
     .maybeSingle();
 
-  const monthlyUsed = usageRow?.count ?? 0;
+  const monthlyUsed = usageRow?.count ?? 8;
   const monthlyLimit = currentPlan === "Pro" ? "Unlimited" : "3";
   const resetDate = usageRow?.reset_at
     ? new Date(usageRow.reset_at).toLocaleDateString("en-US", {

@@ -36,7 +36,9 @@ Before assigning a score, reason step-by-step using these factors:
 81-100 = very high demand, large audience, urgent problem, strong monetization potential
 
 **Output rules:**
-- Only return JSON; do not include extra text or explanations.
-- Use the **full 0-100 scale** and justify the score in marketDemandJustification.
+- Only return JSON; do not include extra text or explanations, use simple and easy language, short sentences.
+- Use the **full 0-100 scale** and justify the score in marketDemandJustification in 3-4 lines.
 - Give concrete, specific reasoning rather than vague terms.
-- Ensure each field in the JSON is filled realistically for the startup idea provided.`;
+- Ensure each field in the JSON is filled realistically for the startup idea provided.
+- Do NOT include markdown, code blocks, or any extra text, or bold text. Only output raw JSON.
+- the JSON must strictly follow the schema above, with all fields present and correctly typed and with the correct data types.`;

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import OpenAI from "openai";
+// import OpenAI from "openai";
 import { createHash } from "crypto";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -18,7 +18,15 @@ const ideaSchema = z.object({
   tags: z.array(z.string()).optional(),
 });
 
-const systemPrompt = `You are an idea generation engine that builds concise, original startup ideas. Return only valid JSON and nothing else. Each idea should include a title, a compelling description, the persons/potential users, and a short array of tags describing the industry, target, and technology. Provide at least six distinct ideas. Wrap the list in a JSON object with the shape: {"ideas": [ ... ]}.`;
+const systemPrompt = `You are an idea generation engine that builds concise, original startup ideas. Return only valid JSON and nothing else. Each idea should include a title, a compelling description, the persons/potential users, and a short array of tags describing the industry, target, and technology. Provide at least six distinct ideas. Wrap the list in a JSON object with the shape: {"ideas": [ ... ]}.
+- Schema = {
+  title: string,
+  description: string,
+  potentialUsers: string,
+  tags: string[],
+};
+- Do NOT include markdown, code blocks, or any extra text, or bold text. Only output raw JSON.
+- the JSON must strictly follow the schema above, with all fields present and correctly typed and with the correct data types.`;
 
 export async function POST(request: Request) {
   try {
@@ -71,55 +79,37 @@ export async function POST(request: Request) {
       return NextResponse.json({ ideas: cached.ideas, fromCache: true });
     }
 
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
-        { error: "OpenAI API key is not configured." },
+        { error: "Gemini API key is not configured." },
         { status: 500 },
       );
     }
 
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const prompt = `Industry: ${normalized.industry}\nTarget Audience: ${normalized.targetCustomer}\nProblem: ${normalized.problemSpace}\nTechnology: ${normalized.technology}\n`;
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: prompt },
-      ],
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "idea_list",
-          strict: true,
-          schema: {
-            type: "object",
-            additionalProperties: false,
-            properties: {
-              ideas: {
-                type: "array",
-                minItems: 6,
-                items: {
-                  type: "object",
-                  additionalProperties: false,
-                  properties: {
-                    title: { type: "string" },
-                    description: { type: "string" },
-                    potentialUsers: { type: "string" },
-                    tags: { type: "array", items: { type: "string" } },
-                  },
-                  required: ["title", "description", "potentialUsers", "tags"],
-                },
-              },
-            },
-            required: ["ideas"],
-          },
-        },
-      },
-      temperature: 0.7,
-    });
+    // Use Gemini 1.5 Flash model endpoint
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+    const geminiBody = {
+      contents: [{ parts: [{ text: `${systemPrompt}\n${prompt}` }] }],
+    };
 
-    const message = completion.choices[0]?.message?.content?.trim() ?? "{}";
+    const geminiRes = await fetch(geminiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(geminiBody),
+    });
+    if (!geminiRes.ok) {
+      const err = await geminiRes.text();
+      return NextResponse.json(
+        { error: `Gemini API error: ${err}` },
+        { status: 502 },
+      );
+    }
+    const geminiData = await geminiRes.json();
+    // Gemini's response is in geminiData.candidates[0].content.parts[0].text
+    const message =
+      geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? "{}";
     let ideas: z.infer<typeof ideaSchema>[] = [];
     try {
       const parsedJson = JSON.parse(message);
